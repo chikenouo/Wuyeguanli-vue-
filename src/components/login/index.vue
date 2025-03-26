@@ -13,7 +13,9 @@
   })
 
   const login = async() => {
-    const result = await loginApi(loginForm.value); // 把帳號密碼給API
+    const result = await loginApi(loginForm.value); 
+    console.log(result)
+    // 把帳號密碼給API
         if (result.code) {
           // 1. 提示信息
           ElMessage.success('登入成功')
@@ -21,6 +23,7 @@
           localStorage.setItem('loginUser',JSON.stringify( result.data))
           // 3. 跳轉首頁
           router.push('/homepage')
+          console.log(result.data)
         } else {
           ElMessage.error('登入失敗')
         }
@@ -56,17 +59,17 @@
       <div class="login-left">
         <div class="left-content">
           <div class="image-box">
-            <img src="https://hips.hearstapps.com/hmg-prod/images/091308-66ebdf638a057.jpeg" alt="圖片加載中..." />
+            <img src="/Doorman.png" alt="圖片加載中..." />
           </div>
           <h2>頂級奢華，尊榮人生</h2>
-          <p>高譚暖市坐落於城市黃金地段，結合現代建築美學與頂級奢華設計，為尊貴住戶打造極致生活體驗。社區內擁有國際級會所、恆溫泳池、私人健身中心與空中花園，提供無與倫比的尊榮享受。鄰近高端購物中心、米其林餐廳與國際學府，讓品味與便捷兼得。這裡，不僅是一處居所，更是身份與品味的象徵。</p>
+          <p>悅來富坐落於城市黃金地段，結合現代建築美學與頂級奢華設計，為尊貴住戶打造極致生活體驗。社區內擁有國際級會所、恆溫泳池、私人健身中心與空中花園，提供無與倫比的尊榮享受。鄰近高端購物中心、米其林餐廳與國際學府，讓品味與便捷兼得。這裡，不僅是一處居所，更是身份與品味的象徵。</p>
         </div>
       </div>
   
       <!-- 右側登入表單 -->
       <div class="login-right">
         <div class="form-wrapper">
-          <h1>高譚暖市</h1>
+          <h1>悅來富社區</h1>
   
           <el-form ref="formRef" :model="form" :rules="rules" @submit.prevent>
             <div class="form-group">

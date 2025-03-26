@@ -58,12 +58,12 @@ onMounted(() => {
       <div class="header-content">
         <div class="logo-container">
           <el-icon class="logo-icon"><OfficeBuilding /></el-icon>
-          <span class="title">高譚暖市</span>
+          <span class="title">悅來富</span>
         </div>
         <div class="right-tools">
             <span>
               <a href="javascript:void(0)" @click="logout">
-                <el-icon><SwitchButton /></el-icon> 退出登录 【{{ loginName }}】
+                <el-icon><SwitchButton /></el-icon> 登出 【{{ loginName }}】
               </a>
             </span>
         </div>
@@ -100,11 +100,11 @@ onMounted(() => {
           </el-menu-item>
           <el-menu-item index="/history">
             <el-icon><OfficeBuilding /></el-icon>
-            <span>社區歷史</span>
+            <span>社區資訊</span>
           </el-menu-item>
-          <el-menu-item index="/directory">
-            <el-icon><Phone /></el-icon>
-            <span>通訊錄</span>
+          <el-menu-item index="/parking">
+            <el-icon><Van /></el-icon>
+            <span>停車資訊</span>
           </el-menu-item>
           <el-menu-item index="/workshop">
             <el-icon><Tools /></el-icon>
@@ -113,6 +113,10 @@ onMounted(() => {
           <el-menu-item index="/fee">
             <el-icon><Money /></el-icon>
             <span>管理費用</span>
+          </el-menu-item>
+          <el-menu-item index="/directory">
+            <el-icon><Phone /></el-icon>
+            <span>通訊錄</span>
           </el-menu-item>
           <el-menu-item index="/settings">
             <el-icon><Setting /></el-icon>

@@ -1,213 +1,232 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { 
-  Search, 
-  RefreshRight, 
-  Edit, 
-  View, 
-  Plus, 
-  Location, 
-  Picture,
-  OfficeBuilding,
-  Cpu,
-  Promotion,
-  HomeFilled,
-  Connection
-} from '@element-plus/icons-vue';
+import { ref, computed, onMounted, watch } from 'vue'
+import * as echarts from 'echarts'
+import {maintenanceSearchAll,findTop3} from '@/api/api'
+
+// 圖表相關變量
+let myChart = null
+let option = {
+  grid: {
+    top: '10%',
+    bottom: '20%',
+    left: '15%',
+    right: '15%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    data: [],
+    axisLabel: {
+      interval: 0,
+      rotate: 0,
+      fontSize: 14,
+      lineHeight: 20,
+      padding: [10, 8, 10, 8],
+      width: 150,
+      overflow: 'break'
+    }
+  },
+  yAxis: {
+    type: 'value',
+    name: '報修次數'
+  },
+  series: [
+    {
+      data: [],
+      type: 'bar',
+      barWidth: '40%',
+      itemStyle: {
+        color: '#6fb7b7'
+      }
+    }
+  ]
+}
 
 // 搜尋表單數據
 const searchForm = ref({
   type: '',
   location: '',
+  description: '', // 新增損害描述
   status: '',
-  dateRange: []
-});
+  date: '',
+})
+
+// 控制排行榜顯示
+const showRanking = ref(false)
+
+// 監聽搜尋表單變化
+watch(
+  () => ({
+    type: searchForm.value.type,
+    location: searchForm.value.location,
+    description: searchForm.value.description,
+    status: searchForm.value.status,
+    date: searchForm.value.date
+  }),
+  () => {
+    handleSearch()
+  },
+  { deep: true }
+)
 
 // 種類選項
-const typeOptions = ref(['電器設備', '水電管線', '結構損壞', '網路設備', '空調系統', '其他']);
+const typeOptions = ref([
+  '設備相關',
+  '水電相關',
+  '結構相關',
+  '其他',
+])
 
 // 分頁相關
-const currentPage = ref(1);
-const pageSize = ref(10);
-const totalReports = ref(0);
+const currentPage = ref(1)
+const pageSize = ref(10)
+const totalReports = ref(0)
 
 // 加載狀態
-const loading = ref(false);
+const loading = ref(false)
 
-// 排行榜數據
-const topReportItems = ref([
-  { type: '空調系統', location: '辦公室', count: 28 },
-  { type: '水電管線', location: '廁所', count: 23 },
-  { type: '網路設備', location: '會議室', count: 15 }
-]);
 
 // 模擬的維修通報數據
-const reportList = ref([]);
+const reportList = ref([])
 
 // 查看對話框
-const viewDialogVisible = ref(false);
-const currentReport = ref(null);
+const viewDialogVisible = ref(false)
+const currentReport = ref(null)
 
-const reportDialogVisible = ref(false);
+const reportDialogVisible = ref(false)
 const reportForm = ref({
   location: '',
   type: '',
   description: '',
   image1: null,
-  image2: null
-});
+  image2: null,
+})
 
-const locationOptions = [
-  { value: 'office', label: '辦公室' },
-  { value: 'meetingroom', label: '會議室' },
-  { value: 'bathroom', label: '廁所' },
-  { value: 'lobby', label: '大廳' }
-];
+
 
 // 根據搜尋條件過濾的列表
 const filteredReportList = computed(() => {
-  const sortedList = [...reportList.value].sort((a, b) => {
-    return new Date(b.reportTime) - new Date(a.reportTime);
-  }).map(item => ({
-    ...item,
-    truncatedDescription: item.description.length > 10 
-      ? item.description.substring(0, 10) + '...'
-      : item.description
-  }));
-  
+  // 先進行搜尋條件過濾
+  const filteredList = reportList.value.filter(item => {
+    const matchType = !searchForm.value.type || item.sort === searchForm.value.type
+    const matchLocation = !searchForm.value.location || item.location.includes(searchForm.value.location)
+    const matchDescription = !searchForm.value.description || item.description.includes(searchForm.value.description)
+    const matchStatus = !searchForm.value.status || item.status === searchForm.value.status
+    const matchDate = !searchForm.value.date || item.createTime.includes(searchForm.value.date)
+    return matchType && matchLocation && matchDescription && matchStatus && matchDate
+  })
+
+  // 再進行排序
+  const sortedList = filteredList
+    .sort((a, b) => {
+      return new Date(b.createTime) - new Date(a.createTime)
+    })
+    .map((item) => ({
+      ...item,
+      truncatedDescription:
+        item.description.length > 10
+          ? item.description.substring(0, 10) + '...'
+          : item.description,
+    }))
+
+  // 最後進行分頁
   return sortedList.slice(
     (currentPage.value - 1) * pageSize.value,
     currentPage.value * pageSize.value
-  );
-});
+  )
+})
 
-// 獲取狀態對應的類型
-const getStatusType = (status) => {
-  switch (status) {
-    case '未處理':
-      return 'danger';
-    case '處理中':
-      return 'warning';
-    case '已修繕':
-      return 'success';
-    default:
-      return 'info';
-  }
-};
 
-// 獲取排行榜百分比
-const getPercentage = (count) => {
-  const maxCount = Math.max(...topReportItems.value.map(item => item.count));
-  return (count / maxCount) * 100;
-};
 
-// 獲取排行榜顏色
-const getRankColor = (index) => {
-  const colors = ['#f56c6c', '#e6a23c', '#409eff'];
-  return colors[index] || '#909399';
-};
-
-// 獲取種類對應的圖標
-const getIconForType = (type) => {
-  switch (type) {
-    case '空調系統':
-      return HomeFilled;
-    case '水電管線':
-      return Promotion; // 使用 Promotion 替代不存在的 Pipe
-    case '網路設備':
-      return Connection;
-    case '電器設備':
-      return Cpu;
-    case '結構損壞':
-      return OfficeBuilding;
-    default:
-      return Promotion;
-  }
-};
-
-// 獲取圖片URL（模擬）
-const getImageUrl = (index) => {
-  // 這裡使用隨機圖片作為示例，實際應用中應該使用真實的圖片URL
-  return `https://picsum.photos/800/600?random=${index}`;
-};
+// 獲取圖片URL
+const getImageUrl = (url) => {
+  if (!url) return '';
+  return url.startsWith('http') ? url : `http://localhost:8585${url}`;
+}
 
 // 搜尋處理
 const handleSearch = () => {
-  // 實際應用中這裡會調用API進行搜尋
-  loading.value = true;
-  setTimeout(() => {
-    // 模擬API請求
-    loading.value = false;
-    // 重置分頁
-    currentPage.value = 1;
-  }, 500);
-};
+  loading.value = true
+  const filteredList = reportList.value.filter(item => {
+    const matchType = !searchForm.value.type || item.sort === searchForm.value.type
+    const matchLocation = !searchForm.value.location || item.location.includes(searchForm.value.location)
+    const matchDescription = !searchForm.value.description || item.description.includes(searchForm.value.description)
+    const matchStatus = !searchForm.value.status || item.status === searchForm.value.status
+    const matchDate = !searchForm.value.date || item.createTime.includes(searchForm.value.date)
+
+    return matchType && matchLocation && matchDescription && matchStatus && matchDate
+  })
+
+  totalReports.value = filteredList.length
+  loading.value = false
+  currentPage.value = 1
+}
 
 // 重置搜尋
 const resetSearch = () => {
   searchForm.value = {
     type: '',
     location: '',
+    description: '',
     status: '',
-    dateRange: []
-  };
-  handleSearch();
-};
+    date: '',
+  }
+  handleSearch()
+}
 
 // 新增處理
 const handleAdd = () => {
-  reportDialogVisible.value = true;
-};
+  reportDialogVisible.value = true
+}
 
 const handleReportSubmit = () => {
   // 處理表單提交邏輯
-  console.log(reportForm.value);
-  reportDialogVisible.value = false;
-};
+  console.log(reportForm.value)
+  reportDialogVisible.value = false
+}
 
 const handleImageUpload = (file, type) => {
-  reportForm.value[type] = file;
-};
-
+  reportForm.value[type] = file
+}
 
 // 查看處理
 const handleView = (row) => {
-  currentReport.value = row;
-  viewDialogVisible.value = true;
-};
+  currentReport.value = row
+  viewDialogVisible.value = true
+}
 
 // 分頁大小變更
 const handleSizeChange = (val) => {
-  pageSize.value = val;
-};
+  pageSize.value = val
+}
 
 // 當前頁變更
 const handleCurrentChange = (val) => {
-  currentPage.value = val;
-};
+  currentPage.value = val
 
-// 生成模擬數據
-const generateMockData = () => {
-  const statuses = ['未處理', '處理中', '已修繕'];
-  const types = ['電器設備', '水電管線', '結構損壞', '網路設備', '空調系統', '其他'];
-  const locations = ['辦公室', '會議室', '廁所', '茶水間', '走廊', '停車場', '大廳'];
-  
-  const mockData = [];
-  
+  const mockData = []
+
   for (let i = 1; i <= 100; i++) {
     const randomDate = new Date(
-      2025, 
-      Math.floor(Math.random() * 12), 
+      2025,
+      Math.floor(Math.random() * 12),
       Math.floor(Math.random() * 28) + 1,
       Math.floor(Math.random() * 24),
       Math.floor(Math.random() * 60),
       Math.floor(Math.random() * 60)
-    );
-    
-    const formattedDate = `${randomDate.getFullYear()}-${String(randomDate.getMonth() + 1).padStart(2, '0')}-${String(randomDate.getDate()).padStart(2, '0')} ${String(randomDate.getHours()).padStart(2, '0')}-${String(randomDate.getMinutes()).padStart(2, '0')}-${String(randomDate.getSeconds()).padStart(2, '0')}`;
-    
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    
+    )
+
+    const formattedDate = `${randomDate.getFullYear()}-${String(
+      randomDate.getMonth() + 1
+    ).padStart(2, '0')}-${String(randomDate.getDate()).padStart(
+      2,
+      '0'
+    )} ${String(randomDate.getHours()).padStart(2, '0')}-${String(
+      randomDate.getMinutes()
+    ).padStart(2, '0')}-${String(randomDate.getSeconds()).padStart(2, '0')}`
+
+    const status = statuses[Math.floor(Math.random() * statuses.length)]
+
     mockData.push({
       id: i,
       type: types[Math.floor(Math.random() * types.length)],
@@ -215,95 +234,128 @@ const generateMockData = () => {
       description: `損壞描述 ${i}：設備無法正常運作，需要維修。`,
       reportTime: formattedDate,
       status: status,
-      cost: status === '已修繕' ? Math.floor(Math.random() * 10000) + 500 : null
-    });
+      cost:
+        status === '已修繕' ? Math.floor(Math.random() * 10000) + 500 : null,
+    })
   }
-  
-  return mockData;
-};
+
+  return mockData
+}
+// 獲取種類對應的顏色
+const getTypeColor = (type) => {
+  switch (type) {
+    case '設備相關':
+      return '#e6a23c' // 黃色
+    case '結構相關':
+      return '#f56c6c' // 紅色
+    case '水電相關':
+      return '#409eff' // 藍色
+    default:
+      return '#909399' // 灰色
+  }
+}
+
+// 獲取狀態對應的樣式
+const getStatusType = (status) => {
+  switch (status) {
+    case '待處理':
+      return 'warning'
+    case '處理中':
+      return 'primary'
+    case '已完成':
+      return 'success'
+    default:
+      return 'info'
+  }
+}
 
 // 組件掛載時初始化數據
-onMounted(() => {
-  loading.value = true;
-  // 模擬API請求延遲
-  setTimeout(() => {
-    reportList.value = generateMockData();
-    totalReports.value = reportList.value.length;
-    loading.value = false;
-  }, 1000);
-});
+onMounted(async () => {
+  try {
+    loading.value = true
+    // 獲取維修通報列表數據
+    const maintenanceData = await maintenanceSearchAll()
+    console.log(maintenanceData)
+    if (maintenanceData) {
+      reportList.value = maintenanceData
+      totalReports.value = maintenanceData.length
+    }
+
+    // 初始化圖表
+    myChart = echarts.init(document.getElementById('main'))
+
+    // 獲取Top3數據
+    const top3Data = await findTop3()
+    if (top3Data) {
+      // 更新圖表數據
+      option.xAxis.data = top3Data.map(item => `${item.location}\n${item.description}`)
+      option.series[0].data = top3Data.map(item => item.count)
+      myChart.setOption(option)
+      console.log(top3Data)
+    }
+  } catch (error) {
+    console.error('獲取數據失敗:', error)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
   <div class="maintenance-dashboard">
     <!-- 頂部排行榜 -->
     <div class="ranking-section">
-      <div class="section-header">
-        <h2>維修事項排行榜</h2>
+      <div class="section-header" @click="showRanking = !showRanking" style="cursor: pointer;">
+        <h2 class="ranking-title">維修事項排行榜</h2>
+        <el-icon :class="{ 'is-reverse': showRanking }"><ArrowDown /></el-icon>
       </div>
-      <div class="ranking-cards">
-        <el-card v-for="(item, index) in topReportItems" :key="index" class="ranking-card">
-          <div class="ranking-badge" :class="`rank-${index + 1}`">{{ index + 1 }}</div>
-          <div class="ranking-content">
-            <div class="ranking-icon">
-              <el-icon :size="36" :class="`icon-type-${index + 1}`">
-                <component :is="getIconForType(item.type)" />
-              </el-icon>
-            </div>
-            <div class="ranking-info">
-              <h3>{{ item.type }}</h3>
-              <p class="location"><el-icon><Location /></el-icon> {{ item.location }}</p>
-              <div class="ranking-stats">
-                <el-progress 
-                  :percentage="getPercentage(item.count)" 
-                  :color="getRankColor(index)"
-                  :show-text="false"
-                  :stroke-width="8"
-                />
-                <span class="count-badge">{{ item.count }} 次通報</span>
-              </div>
-            </div>
-          </div>
-        </el-card>
-      </div>
+      <div id="main" style="width: 100%; height: 400px; margin: 0 auto;"></div>
     </div>
 
     <!-- 中間搜尋欄 -->
     <div class="search-section">
       <div class="search-form">
         <el-form :inline="true" :model="searchForm" class="search-form-content">
-          <el-form-item label="地點">
-            <el-input v-model="searchForm.location" placeholder="請輸入地點" />
-          </el-form-item>
-          <el-form-item label="種類">
-            <el-select v-model="searchForm.type" placeholder="請選擇種類" clearable>
-              <el-option v-for="item in typeOptions" :key="item" :label="item" :value="item" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="處理狀態">
-            <el-select v-model="searchForm.status" placeholder="請選擇狀態" clearable>
-              <el-option label="未處理" value="未處理" />
-              <el-option label="處理中" value="處理中" />
-              <el-option label="已修繕" value="已修繕" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="通報時間">
-            <el-date-picker
-              v-model="searchForm.dateRange"
-              type="daterange"
-              range-separator="至"
-              start-placeholder="開始日期"
-              end-placeholder="結束日期"
-            />
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="handleSearch">
-              <el-icon><Search /></el-icon> 搜尋
-            </el-button>
-            <el-button @click="resetSearch">
-              <el-icon><RefreshRight /></el-icon> 重置
-            </el-button>
-          </el-form-item>
+          <div class="search-grid">
+            <el-form-item label="種類">
+              <el-select v-model="searchForm.type" placeholder="請選擇種類" clearable>
+                <el-option v-for="item in typeOptions" :key="item" :label="item" :value="item">
+                  <span style="display: flex; align-items: center;">
+                    <el-tag :style="{ backgroundColor: getTypeColor(item), color: '#fff', border: 'none', marginRight: '8px' }">
+                      {{ item }}
+                    </el-tag>
+                  </span>
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="地點">
+              <el-input v-model="searchForm.location" placeholder="請輸入地點" clearable />
+            </el-form-item>
+            <el-form-item label="損害描述">
+              <el-input v-model="searchForm.description" placeholder="請輸入損害描述" clearable />
+            </el-form-item>
+            <el-form-item label="狀態">
+              <el-select v-model="searchForm.status" placeholder="請選擇狀態" clearable>
+                <el-option label="待處理" value="待處理" />
+                <el-option label="處理中" value="處理中" />
+                <el-option label="已完成" value="已完成" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="日期">
+              <el-date-picker
+                v-model="searchForm.date"
+                type="date"
+                placeholder="選擇日期"
+                format="YYYY/MM/DD"
+                value-format="YYYY-MM-DD"
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-button @click="resetSearch">
+                <el-icon><RefreshRight /></el-icon> 清空
+              </el-button>
+            </el-form-item>
+          </div>
         </el-form>
       </div>
     </div>
@@ -320,28 +372,33 @@ onMounted(() => {
         :header-cell-style="{ textAlign: 'center', backgroundColor: '#f5f7fa' }"
         :resizable="false"
       >
-        <el-table-column prop="location" label="地點" width="120" />
-        <el-table-column prop="type" label="種類" width="120" />
-        <el-table-column 
-          prop="truncatedDescription" 
-          label="損壞描述" 
-          show-overflow-tooltip
-        />
-        <el-table-column label="處理狀態" width="120">
+        <el-table-column type="index" label="編號" width="60" />
+        <el-table-column label="種類" width="100">
           <template #default="scope">
-            <el-tag
-              :type="getStatusType(scope.row.status)"
-              effect="light"
-            >
+            <el-tag :style="{ backgroundColor: getTypeColor(scope.row.sort), color: '#fff', border: 'none' }">
+              {{ scope.row.sort }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="location" label="地點" width="140" />
+        <el-table-column prop="description" label="損壞描述" width="150" />
+        <el-table-column label="通報時間" width="207">
+          <template #default="scope">
+            {{ scope.row.createTime.replace('T', ' ') }}
+          </template>
+        </el-table-column>
+        <el-table-column label="狀態" width="100">
+          <template #default="scope">
+            <el-tag :type="getStatusType(scope.row.status)" effect="light">
               {{ scope.row.status }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180">
+        <el-table-column label="操作" width="100">
           <template #default="scope">
-            <el-button 
-              type="success" 
-              size="small" 
+            <el-button
+              type="success"
+              size="small"
               @click="handleView(scope.row)"
             >
               <el-icon><View /></el-icon> 查看
@@ -368,63 +425,50 @@ onMounted(() => {
     <el-dialog
       v-model="viewDialogVisible"
       title="維修詳情"
-      width="60%"
+      width="40%"
       destroy-on-close
     >
-      <div v-if="currentReport" class="view-dialog-content">
-        <div class="report-info">
-          <h3>{{ currentReport.type }} - {{ currentReport.location }}</h3>
-          <p class="description">{{ currentReport.description }}</p>
-          <div class="report-details">
-            <div class="detail-item">
-              <span class="label">通報時間：</span>
-              <span>{{ currentReport.reportTime }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="label">處理狀態：</span>
-              <el-tag :type="getStatusType(currentReport.status)">
-                {{ currentReport.status }}
-              </el-tag>
-            </div>
-            <div class="detail-item">
-              <span class="label">費用：</span>
-              <span>{{ currentReport.cost ? `$${currentReport.cost}` : '尚未產生費用' }}</span>
-            </div>
-          </div>
-        </div>
-        
+      <div class="detail-content">
+        <el-descriptions :column="1" border>
+          <el-descriptions-item label="種類">
+            <el-tag :style="{ backgroundColor: getTypeColor(currentReport?.sort), color: '#fff', border: 'none' }">
+              {{ currentReport?.sort }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="地點">
+            {{ currentReport?.location }}
+          </el-descriptions-item>
+          <el-descriptions-item label="通報時間">
+            {{ currentReport?.createTime?.replace('T', ' ') }}
+          </el-descriptions-item>
+          <el-descriptions-item label="狀態">
+            <el-tag :type="getStatusType(currentReport?.status)" effect="light">
+              {{ currentReport?.status }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="損害描述">
+            {{ currentReport?.description }}
+          </el-descriptions-item>
+        </el-descriptions>
+
         <div class="image-section">
           <h4>損壞照片</h4>
           <div class="image-container">
-            <div class="image-item">
-              <el-image 
-                :src="getImageUrl(1)" 
-                fit="cover"
-                :preview-src-list="[getImageUrl(1)]"
+            <div class="image-item" v-for="(_, index) in 2" :key="index">
+              <el-image
+                :src="currentReport ? getImageUrl(index === 0 ? currentReport.photo1 : currentReport.photo2) : ''"
+                fit="contain"
+                :preview-src-list="currentReport ? [getImageUrl(index === 0 ? currentReport.photo1 : currentReport.photo2)] : []"
+                style="width: 200px; height: 150px"
               >
                 <template #error>
                   <div class="image-error">
                     <el-icon><Picture /></el-icon>
-                    <span>圖片加載失敗</span>
+                    <span>無圖片</span>
                   </div>
                 </template>
               </el-image>
-              <div class="image-caption">圖片 1</div>
-            </div>
-            <div class="image-item">
-              <el-image 
-                :src="getImageUrl(2)" 
-                fit="cover"
-                :preview-src-list="[getImageUrl(2)]"
-              >
-                <template #error>
-                  <div class="image-error">
-                    <el-icon><Picture /></el-icon>
-                    <span>圖片加載失敗</span>
-                  </div>
-                </template>
-              </el-image>
-              <div class="image-caption">圖片 2</div>
+              <div class="image-caption">圖片{{ index + 1 }}</div>
             </div>
           </div>
         </div>
@@ -441,7 +485,7 @@ onMounted(() => {
 <style scoped>
 .maintenance-dashboard {
   padding: 20px;
-  background: linear-gradient(135deg, #6FB7B7 0%, #8ec5c5 50%, #6FB7B7 100%);
+  background: linear-gradient(135deg, #6fb7b7 0%, #8ec5c5 50%, #6fb7b7 100%);
   min-height: 100vh;
   position: relative;
 }
@@ -451,43 +495,27 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+  padding: 0 10px;
 }
 
-.section-header h2 {
-  margin: 0;
-  font-size: 18px;
+.section-header h2.ranking-title {
+  margin: 0 auto;
+  font-size: 32px;
   font-weight: 600;
   color: #303133;
+  text-align: center;
 }
 
 /* 排行榜樣式 */
 .ranking-section {
-  width: 900px;
+  width: 700px;
   margin: 0 auto 20px;
   background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
   border-radius: 15px;
-  padding: 20px;
+  padding: 15px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.ranking-cards {
-  display: flex;
-  gap: 20px;
-}
-
-.ranking-card {
-  flex: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: transform 0.3s;
-  position: relative;
-}
-
-.ranking-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .ranking-badge {
@@ -587,10 +615,33 @@ onMounted(() => {
 }
 
 .search-form-content {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
+  padding: 20px;
 }
+
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  transition: background-color 0.3s;
+}
+
+.section-header:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.is-reverse {
+  transform: rotate(180deg);
+  transition: transform 0.3s;
+}
+
 .report-list-section {
   width: 900px;
   margin: 0 auto;
@@ -602,35 +653,24 @@ onMounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.section-header {
+.image-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 0 10px;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
 }
 
-.section-header h2 {
-  font-size: 18px;
-  color: #303133;
-  margin: 0;
-  font-weight: 600;
-}
-
-.search-section {
-  background: linear-gradient(to right, #f8f9fa, #f1f3f5);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.search-form-content {
+.image-item {
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: flex-start;
+  flex-direction: column;
   align-items: center;
 }
+
+.image-caption {
+  margin-top: 8px;
+  color: #606266;
+  font-size: 14px;
+}
+
+
 </style>

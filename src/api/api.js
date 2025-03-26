@@ -29,4 +29,12 @@ export const ruleSearchAll = (date, sort, header,content) => {
     return  request.get(`/api/rules/getAll`,ruleList)
   }
 
-export const feeSearchById= () => request.get('/api/fees/getById')
+export const feeSearchByAddress= () => request.get('/api/fees/getbyId')
+export const parkingFeeSearch= () => request.get('/money/sendtotalfee')
+
+
+export const maintenanceSearchAll=() => request.get('/api/repairs')
+export const findTop3= () => request.get('/api/repairs/top3')
+
+
+

@@ -4,31 +4,52 @@ import { Phone } from '@element-plus/icons-vue';
 
 const tableData = ref([
   {
-    category: '物業管理中心',
-    phone: '(02)2345-6789',
-    hours: '週一至週五 09:00-18:00'
+    category: '水電工',
+    phone: '(08)751-9443',
+    hours: '週一至週日 09:30-18:00'
   },
   {
-    category: '24小時保全室',
-    phone: '(02)2345-6790',
+    category: '鎖匠',
+    phone: '(07)632-1457',
+    hours: '週一至週日 10:00-20:00'
+  },
+  {
+    category: '清潔公司',
+    phone: '(02)894-5632',
+    hours: '週一至週日 08:00-17:00'
+  },
+  {
+    category: '送餐服務',
+    phone: '(03)567-8321',
+    hours: '週一至週日 11:00-21:00'
+  },
+  {
+    category: '社區巡守隊',
+    phone: '(04)723-8891',
     hours: '24小時服務'
   },
   {
-    category: '社區會所',
-    phone: '(02)2345-6791',
-    hours: '週一至週日 07:00-22:00'
+    category: '家電維修',
+    phone: '(06)985-4123',
+    hours: '週一至週日 09:00-19:00'
   },
   {
-    category: '健身房',
-    phone: '(02)2345-6792',
-    hours: '週一至週日 06:00-23:00'
+    category: '居家照護',
+    phone: '(09)874-5632',
+    hours: '週一至週日 08:30-17:30'
   },
   {
-    category: '游泳池管理室',
-    phone: '(02)2345-6793',
-    hours: '週二至週日 06:30-21:30'
+    category: '計程車服務',
+    phone: '(02)556-6778',
+    hours: '24小時服務'
+  },
+  {
+    category: '快遞公司',
+    phone: '(07)448-8221',
+    hours: '週一至週日 09:00-18:00'
   }
 ]);
+
 </script>
 
 <template>

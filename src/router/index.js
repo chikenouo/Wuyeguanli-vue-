@@ -8,7 +8,9 @@ import Rule from '@/components/rule/index.vue'
 import History from '@/components/history/index.vue'
 import Fee from '@/components/fee/index.vue'
 import Login from '@/components/login/index.vue'
+import Parking from '@/components/parking/index.vue'
 import { ElMessage } from 'element-plus'
+
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +28,7 @@ const router = createRouter({
                 { path: '/directory', name: 'directory', component: directory, meta: { requiresAuth: true } },
                 { path: '/history', name: 'history', component: History, meta: { requiresAuth: true } },
                 { path: '/fee', name: 'fee', component: Fee, meta: { requiresAuth: true } },
+                { path: '/parking', name: 'parking', component: Parking, meta: { requiresAuth: true }}
             ]
         },
         { path: '/login', name: 'login', component: Login },

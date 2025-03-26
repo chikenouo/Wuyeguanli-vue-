@@ -355,11 +355,11 @@ onMounted(() => {
         </el-descriptions-item>
       </el-descriptions>
 
-      <div v-if="currentDetail?.image" class="dialog-image">
+      <div v-if="currentDetail?.imgUrl" class="dialog-image">
         <el-image
-          :src="currentDetail.image"
+          :src="currentDetail.imgUrl"
           fit="contain"
-          :preview-src-list="[currentDetail.image]"
+          :preview-src-list="[currentDetail.imgUrl]"
         >
           <template #error>
             <div class="image-slot">
@@ -496,6 +496,29 @@ onMounted(() => {
   justify-content: center;
 }
 
+.dialog-image {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.dialog-image :deep(.el-image) {
+  max-height: 400px;
+  width: auto;
+}
+
+.dialog-image :deep(.el-image img) {
+  max-height: 200px;
+  object-fit: contain;
+}
+
+.image-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #909399;
+}
 :deep(.el-pagination) {
   justify-content: center;
   margin-top: 20px;

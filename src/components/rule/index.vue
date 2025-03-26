@@ -485,4 +485,20 @@ onMounted(() => {
   padding: 40px 0;
   color: #909399;
 }
+
+:deep(.el-descriptions__cell) {
+  padding: 12px 15px;
+}
+
+:deep(.el-descriptions__label) {
+  width: 120px;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:deep(.el-descriptions__content) {
+  text-align: left;
+}
 </style>

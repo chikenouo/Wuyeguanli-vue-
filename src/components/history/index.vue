@@ -47,28 +47,28 @@ const famousPeople = ref([
     name: '吉伊卡哇',
     englishName: 'ちいかわ',
     photo: 'https://img.shoplineapp.com/media/image_clips/663c6333a1cc270011604bc1/original.jpg?1715233587',
-    specialty: '只會哭'
+    specialty: '主委'
   },
   {
     id: 2,
     name: '烏薩奇',
     englishName: 'うさぎ',
     photo:'https://img.shoplineapp.com/media/image_clips/663c8aebb455500019558155/original.jpg?1715243755',
-    specialty: '蛤'
+    specialty: '副主委'
   },
   {
     id: 3,
     name: '小八',
     englishName: '(ハチワレ)',
     photo: 'https://img.shoplineapp.com/media/image_clips/663c633b4e4ee000171971aa/original.jpg?1715233595',
-    specialty: '總會有辦法的！'
+    specialty: '財務委員'
   },
   {
     id: 4,
     name: '小桃鼠',
     englishName: 'モモンガ',
     photo: 'https://img.shoplineapp.com/media/image_clips/663c634aefa4ea00118ae417/original.jpg?1715233609',
-    specialty: '裝可愛'
+    specialty: '監察委員'
   },
 ]);
 
@@ -140,9 +140,9 @@ onMounted(() => {
     
     <el-divider />
     
-    <!-- 下方區塊：社區名人表 -->
+    <!-- 下方區塊:名單部分 -->
     <div class="famous-people-section">
-      <h2 class="section-title">社區名人</h2>
+      <h2 class="section-title">管委會名單</h2>
       
       <el-row :gutter="20">
         <el-col 
