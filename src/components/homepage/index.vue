@@ -3,22 +3,22 @@ import { ref } from 'vue';
 
 const carouselImages = ref([
   { 
-    url: 'https://picsum.photos/600/300?random=1', 
+    url: 'https://img.news.ebc.net.tw/images/2018/03/31/15224810871771Nsln3ownE.jpg', 
     alt: '社區景觀',
-    title: '系統維護公告',
-    description: '系統將於本週五進行例行維護與更新。'
+    title: '電費調整通知',
+    description: '因應電費上調，7 月起社區公設用電費用將略有調整，請住戶留意帳單變動。'
   },
   { 
-    url: 'https://picsum.photos/600/300?random=2', 
+    url: 'https://wpc.stu.edu.tw/wp-content/uploads/sites/16/2022/03/111%E5%B9%B4%E9%9C%80%E6%B1%82%E8%AA%BF%E6%9F%A5%E8%A1%A8-%E6%A8%B9%E5%BE%B7%E7%A7%91%E6%8A%80%E5%A4%A7%E5%AD%B8%E5%85%AC%E5%91%8A%E7%89%8821%E4%B8%96%E7%B4%80%E9%A2%A8%E5%91%B30314.jpg', 
     alt: '社區設施',
-    title: '新中心開放時間',
-    description: '鴻息中心周一至周五開放時間！'
+    title: '社區住戶意見調查開始',
+    description: '為提升社區管理，將於 7 月 10 日起進行住戶滿意度調查，請踴躍參與。'
   },
   { 
-    url: 'https://picsum.photos/600/300?random=3', 
+    url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1rdezTde9xkg-HxYYbco0StzMJE9DlAshHQ&s', 
     alt: '社區活動',
-    title: '歡迎報名！',
-    description: '社區年度活動開始報名'
+    title: '健身房設備維修公告',
+    description: '健身房部分器材將於 7 月 8 日維修，施工期間暫停使用，請住戶留意。'
   }
 ]);
 

@@ -118,10 +118,7 @@ onMounted(() => {
             <el-icon><Phone /></el-icon>
             <span>通訊錄</span>
           </el-menu-item>
-          <el-menu-item index="/settings">
-            <el-icon><Setting /></el-icon>
-            <span>設定</span>
-          </el-menu-item>
+          
         </el-menu>
       </el-aside>
     </div>

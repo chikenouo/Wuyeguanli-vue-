@@ -71,7 +71,7 @@
         <div class="form-wrapper">
           <h1>悅來富社區</h1>
   
-          <el-form ref="formRef" :model="form" :rules="rules" @submit.prevent>
+          <el-form ref="formRef" :model="form" :rules="rules" @submit.prevent @keyup.enter="login">
             <div class="form-group">
               <label>
                 <span class="required">*</span>

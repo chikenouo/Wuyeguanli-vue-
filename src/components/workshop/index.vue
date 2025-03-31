@@ -8,7 +8,7 @@ let myChart = null
 let option = {
   grid: {
     top: '10%',
-    bottom: '20%',
+    bottom: '15%',
     left: '15%',
     right: '15%',
     containLabel: true
@@ -52,7 +52,7 @@ const searchForm = ref({
 })
 
 // 控制排行榜顯示
-const showRanking = ref(false)
+const showRanking = ref(true)
 
 // 監聽搜尋表單變化
 watch(
@@ -309,7 +309,9 @@ onMounted(async () => {
         <h2 class="ranking-title">維修事項排行榜</h2>
         <el-icon :class="{ 'is-reverse': showRanking }"><ArrowDown /></el-icon>
       </div>
-      <div id="main" style="width: 100%; height: 400px; margin: 0 auto;"></div>
+      <div v-show="showRanking" class="ranking-content-wrapper">
+        <div id="main" style="width: 100%; height: 300px; margin: 0 auto;"></div>
+      </div>
     </div>
 
     <!-- 中間搜尋欄 -->
@@ -494,13 +496,13 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   padding: 0 10px;
 }
 
 .section-header h2.ranking-title {
   margin: 0 auto;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 600;
   color: #303133;
   text-align: center;
@@ -508,7 +510,7 @@ onMounted(async () => {
 
 /* 排行榜樣式 */
 .ranking-section {
-  width: 700px;
+  width: 900px;
   margin: 0 auto 20px;
   background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
   border-radius: 15px;
@@ -516,6 +518,11 @@ onMounted(async () => {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.ranking-content-wrapper {
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
 }
 
 .ranking-badge {
@@ -672,5 +679,12 @@ onMounted(async () => {
   font-size: 14px;
 }
 
-
+.image-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #909399;
+}
 </style>
