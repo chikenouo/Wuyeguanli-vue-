@@ -54,5 +54,3 @@ npm run build
 - 🌐 **多語系支援**：適應多元社區住戶語言需求  
 - 📦 **IOT 技術整合**：如智能置物櫃、門禁與環境感測等裝置串接  
 
-📄 詳細請見：[docs/FUTURE_SCOPE.md](docs/FUTURE_SCOPE.md)
-
