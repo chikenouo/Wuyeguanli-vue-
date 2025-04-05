@@ -1,29 +1,89 @@
-# finalvue
 
-This template should help get you started developing with Vue 3 in Vite.
+# 智慧社區管理系統 - 前端用戶介面
 
-## Recommended IDE Setup
+> 本專案為一套針對現代化社區需求所開發的智慧社區管理系統之前端用戶介面。透過數位平台簡化社區資訊傳遞、維修申報與停車管理等功能，提升住戶生活便利性及社區管理效率。
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Customize configuration
+## 📁 目錄
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- [🧩 專案介紹](docs/PROJECT_INTRO.md)
+- [🔧 安裝說明](docs/INSTALL_GUIDE.md)
+- [🚀 功能總覽](docs/FEATURES.md)
+- [📘 使用說明](docs/USER_GUIDE.md)
+- [🌱 未來擴展](docs/FUTURE_SCOPE.md)
 
-## Project Setup
+---
 
-```sh
+## 🧩 專案簡介（簡要）
+
+本系統源自實際觀察社區管理上的痛點：
+
+- 公告與規約紙本化，資訊傳遞不易
+- 維修流程繁瑣，難以即時追蹤
+- 停車、管理費、通訊資訊分散管理
+
+本專案透過數位化整合，讓住戶可透過網站平台快速取得所需社區資訊，並提供直觀操作介面提升使用體驗。
+
+📄 詳細介紹請見：[docs/PROJECT_INTRO.md](docs/PROJECT_INTRO.md)
+
+---
+
+## 🔧 安裝說明（Vue 3 環境）
+
+```bash
+# 1. 安裝依賴套件
 npm install
-```
 
-### Compile and Hot-Reload for Development
-
-```sh
+# 2. 啟動開發伺服器
 npm run dev
-```
 
-### Compile and Minify for Production
-
-```sh
+# 3. 編譯生產環境版本
 npm run build
 ```
+
+✅ 使用技術：Vue 3 + Vue Router + Element Plus + Axios
+
+📄 完整安裝教學請見：[docs/INSTALL_GUIDE.md](docs/INSTALL_GUIDE.md)
+
+---
+
+## 🚀 功能簡介（Frontend）
+
+| 功能模組             | 主要說明                                                 |
+|----------------------|----------------------------------------------------------|
+| 公告及規約查詢       | 數位化公告與規約資料，提供快速搜尋與條件篩選              |
+| 社區資訊             | 顯示社區歷史背景、設施與管委會成員聯絡資訊                |
+| 維修申報與追蹤       | 線上提交報修單，追蹤處理進度，並有統計報表分析              |
+| 停車資訊管理         | 查詢車位租賃與繳費狀況，查看匯款紀錄                        |
+| 個人管理費資訊       | 查看年度繳費紀錄與明細                                     |
+| 社區通訊錄           | 整合社區廠商、住戶、緊急聯絡資訊，集中管理                  |
+
+📄 功能總覽詳見：[docs/FEATURES.md](docs/FEATURES.md)
+
+---
+
+## 📘 使用方式
+
+使用者可登入系統後進入以下各大功能模組操作：
+
+- 📢 查看最新公告與社區規約
+- 🧰 線上申報維修，追蹤進度
+- 🚗 查詢車位租金與停車費繳納紀錄
+- 📊 查閱歷年管理費與匯款資訊
+- 🏘️ 查看社區歷史與管委會成員
+- 📞 使用通訊錄聯繫緊急服務或合作廠商
+
+📄 操作教學請見：[docs/USER_GUIDE.md](docs/USER_GUIDE.md)
+
+---
+
+## 🌱 未來拓展
+
+- 🧠 **AI 聊天助理**：即時回覆住戶常見問題  
+- 📲 **行動推播通知**：公告即時推送到住戶手機  
+- 🌐 **多語系支援**：適應多元社區住戶語言需求  
+- 📦 **IOT 技術整合**：如智能置物櫃、門禁與環境感測等裝置串接  
+
+📄 詳細請見：[docs/FUTURE_SCOPE.md](docs/FUTURE_SCOPE.md)
+
