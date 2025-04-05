@@ -1,3 +1,5 @@
+![alt text](image.png)
+![alt text](image-1.png)
 
 # 智慧社區管理系統 - 前端用戶介面
 
