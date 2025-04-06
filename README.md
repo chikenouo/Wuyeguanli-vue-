@@ -32,9 +32,9 @@ npm run build
 
 ✅ 使用技術：Vue 3 + Vue Router + Element Plus + Axios
 
-後台管理頁面請參照: [智慧社區管理系統 - 後台管理介面](https://github.com/noveres/WuyeGuanli_NG)
+後台管理頁面請參照: [智慧社區管理系統 - 後台管理介面Angular](https://github.com/noveres/WuyeGuanli_NG)
 
-後端資料請參照: [智慧社區管理系統 - 後端資料處理](https://github.com/chikenouo/WuyeGuanli)
+後端設計請參照: [智慧社區管理系統 - 後端資料處理Spring Boot](https://github.com/chikenouo/WuyeGuanli)
 
 ---
 
